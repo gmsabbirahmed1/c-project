@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,6 +54,10 @@ void viewBorrowedBooks();
 void adminMenu();
 void userMenu();
 void returnBook();
+void deleteUser();
+void viewBorrowedBooksByUser();
+void aboutUs();
+
 
 int main()
 {
@@ -68,7 +71,7 @@ int main()
 
     while (1)
     {
-        printf("\n1. Admin Login\n2. User Login\n3. Exit\n");
+        printf("\n1. Admin Login\n2. User Login\n3. Exit\n4. About Us\n");
         printf("Enter choice: ");
         scanf("%d", &choice);
 
@@ -91,6 +94,9 @@ int main()
             saveUsersToFile();
             saveBorrowedBooksToFile();
             exit(0);
+        case 4:
+            aboutUs();
+            break;
         default:
             printf("Invalid choice.\n");
         }
@@ -494,7 +500,7 @@ void adminMenu()
     int choice;
     while (1)
     {
-        printf("\nAdmin Menu:\n1. Add Book\n2. Delete Book\n3. Update Book\n4. Display Books\n5. Search Book\n6. Sign-up Student\n7. View Borrowed Books\n8. Go Back\n");
+        printf("\nAdmin Menu:\n1. Add Book\n2. Delete Book\n3. Update Book\n4. Display Books\n5. Search Book\n6. Sign-up Student\n7. View Borrowed Books\n8. Delete User\n9. Go Back\n");
         printf("Enter choice: ");
         scanf("%d", &choice);
 
@@ -522,6 +528,9 @@ void adminMenu()
             viewBorrowedBooks();
             break;
         case 8:
+            deleteUser();
+            break;
+        case 9:
             return;
         default:
             printf("Invalid choice.\n");
@@ -534,7 +543,7 @@ void userMenu()
     int choice;
     while (1)
     {
-        printf("\nUser Menu:\n1. Borrow Book\n2. Return Book\n3. View Books\n4. Search Book\n5. Go Back\n");
+        printf("\nUser Menu:\n1. Borrow Book\n2. Return Book\n3. View Books\n4. Search Book\n5. View Borrowed Books\n6. Go Back\n");
         printf("Enter choice: ");
         scanf("%d", &choice);
 
@@ -553,9 +562,72 @@ void userMenu()
             searchBook();
             break;
         case 5:
+            viewBorrowedBooksByUser();
+            break;
+        case 6:
             return;
         default:
             printf("Invalid choice.\n");
         }
+    }
+}
+
+void aboutUs()
+{
+    printf("\n--------------- About Us ---------------\n");
+    printf("Welcome to \"Libro_GO\" - a Library Management System!\n");
+    printf("This system helps administrators manage books and users\n");
+    printf("efficiently. Users can borrow and return books seamlessly.\n");
+    printf("Developed with care to provide a user-friendly experience.\n");
+    printf("Thank you for using Libro_GO!\n");
+    printf("---------------------------------------\n");
+}
+
+void deleteUser()
+{
+    char studentId[17];
+    printf("Enter Student ID to delete: ");
+    scanf("%s", studentId);
+
+    for (int i = 0; i < userCount; i++)
+    {
+        if (strcmp(users[i].studentId, studentId) == 0)
+        {
+            for (int j = i; j < userCount - 1; j++)
+            {
+                users[j] = users[j + 1];
+            }
+            userCount--;
+            printf("User deleted successfully!\n");
+            saveUsersToFile();
+            return;
+        }
+    }
+    printf("User not found.\n");
+}
+
+void viewBorrowedBooksByUser()
+{
+    char studentId[17];
+    int found = 0;
+
+    printf("Enter your Student ID: ");
+    scanf("%s", studentId);
+
+    for (int i = 0; i < borrowedCount; i++)
+    {
+        if (strcmp(borrowedBooks[i].studentId, studentId) == 0)
+        {
+            printf("Book ID: %d\nBorrowed for: %d days\nBorrowed Date: %s\n\n",
+                   borrowedBooks[i].bookId,
+                   borrowedBooks[i].days,
+                   borrowedBooks[i].borrowDate);
+            found = 1;
+        }
+    }
+
+    if (!found)
+    {
+        printf("No borrowed books found for this Student ID.\n");
     }
 }
