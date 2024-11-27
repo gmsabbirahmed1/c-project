@@ -322,32 +322,56 @@ void deleteBook()
     printf("Book not found.\n");
 }
 
-void updateBook()
-{
-    int id;
+void updateBook() {
+    int id, choice;
     printf("Enter book ID to update: ");
     scanf("%d", &id);
 
-    for (int i = 0; i < bookCount; i++)
-    {
-        if (library[i].id == id)
-        {
-            printf("Enter new title: ");
-            scanf(" %[^\n]", library[i].title);
-            printf("Enter new author: ");
-            scanf(" %[^\n]", library[i].author);
-            printf("Enter new publication year: ");
-            scanf("%d", &library[i].year);
-            printf("Enter new quantity: ");
-            scanf("%d", &library[i].quantity);
-            saveBooksToFile();
-            printf("Book updated successfully!\n");
-            return;
+    for (int i = 0; i < bookCount; i++) {
+        if (library[i].id == id) {
+            while (1) {
+                printf("\nEditing Book ID: %d\n", id);
+                printf("1. Update Title\n");
+                printf("2. Update Author\n");
+                printf("3. Update Publication Year\n");
+                printf("4. Update Quantity\n");
+                printf("5. Go Back\n");
+                printf("Enter your choice: ");
+                scanf("%d", &choice);
+
+                switch (choice) {
+                    case 1:
+                        printf("Enter new title: ");
+                        scanf(" %[^\n]", library[i].title);
+                        printf("Title updated successfully!\n");
+                        break;
+                    case 2:
+                        printf("Enter new author: ");
+                        scanf(" %[^\n]", library[i].author);
+                        printf("Author updated successfully!\n");
+                        break;
+                    case 3:
+                        printf("Enter new publication year: ");
+                        scanf("%d", &library[i].year);
+                        printf("Publication year updated successfully!\n");
+                        break;
+                    case 4:
+                        printf("Enter new quantity: ");
+                        scanf("%d", &library[i].quantity);
+                        printf("Quantity updated successfully!\n");
+                        break;
+                    case 5:
+                        saveBooksToFile();
+                        printf("Changes saved. Returning to Admin Menu.\n");
+                        return;
+                    default:
+                        printf("Invalid choice! Please try again.\n");
+                }
+            }
         }
     }
     printf("Book not found.\n");
 }
-
 void displayBooks()
 {
     for (int i = 0; i < bookCount; i++)
