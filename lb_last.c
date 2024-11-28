@@ -93,6 +93,7 @@ int main()
             saveBooksToFile();
             saveUsersToFile();
             saveBorrowedBooksToFile();
+            printf("\nExciting.........\nThank you for using LibroGO.\n");
             exit(0);
         case 4:
             aboutUs();
@@ -276,40 +277,63 @@ int userLogin()
 
 void addBook()
 {
+    if (bookCount >= MAX_BOOKS)
+    {
+        printf("Error: Library is full. Cannot add more books.\n");
+        return;
+    }
+
     Book newBook;
+
+
     printf("Enter Book ID: ");
     scanf("%d", &newBook.id);
 
-    for (int i = 0; i < bookCount; i++) {
-        if (library[i].id == newBook.id) {
+
+    for (int i = 0; i < bookCount; i++)
+    {
+        if (library[i].id == newBook.id)
+        {
             printf("Error: Book ID %d already exists. Please enter a unique Book ID.\n", newBook.id);
             return;
         }
     }
 
+
     printf("Enter Book Title: ");
-    getchar();  // Consume the newline character left by the previous scanf
+    getchar();
     fgets(newBook.title, sizeof(newBook.title), stdin);
+    newBook.title[strcspn(newBook.title, "\n")] = 0;
+
 
     printf("Enter Book Author: ");
     fgets(newBook.author, sizeof(newBook.author), stdin);
+    newBook.author[strcspn(newBook.author, "\n")] = 0;
+
+
+    printf("Enter Publication Year: ");
+    if (scanf("%d", &newBook.year) != 1 || newBook.year < 1000 || newBook.year > 9999)
+    {
+        printf("Error: Invalid year. Please enter a valid 4-digit year.\n");
+        return;
+    }
 
     printf("Enter Book Quantity: ");
-    scanf("%d", &newBook.quantity);
-
-    library[bookCount] = newBook;
-    bookCount++;
-
-    // Save new book data to the file
-    FILE *file = fopen("books.txt", "a");
-    if (file != NULL) {
-        fprintf(file, "%d\n%s\n%s\n%d\n%d\n", newBook.id, newBook.title, newBook.author, newBook.year, newBook.quantity);
-        fclose(file);
-    } else {
-        printf("Error saving book data.\n");
+    if (scanf("%d", &newBook.quantity) != 1 || newBook.quantity < 1)
+    {
+        printf("Error: Invalid quantity. Must be a positive number.\n");
+        return;
     }
-    printf("Book added successfully.\n");
+
+
+    library[bookCount++] = newBook;
+
+
+    saveBooksToFile();
+
+    printf("Book added successfully!\n");
 }
+
 
 
 void deleteBook()
@@ -335,14 +359,18 @@ void deleteBook()
     printf("Book not found.\n");
 }
 
-void updateBook() {
+void updateBook()
+{
     int id, choice;
     printf("Enter book ID to update: ");
     scanf("%d", &id);
 
-    for (int i = 0; i < bookCount; i++) {
-        if (library[i].id == id) {
-            while (1) {
+    for (int i = 0; i < bookCount; i++)
+    {
+        if (library[i].id == id)
+        {
+            while (1)
+            {
                 printf("\nEditing Book ID: %d\n", id);
                 printf("1. Update Title\n");
                 printf("2. Update Author\n");
@@ -352,33 +380,34 @@ void updateBook() {
                 printf("Enter your choice: ");
                 scanf("%d", &choice);
 
-                switch (choice) {
-                    case 1:
-                        printf("Enter new title: ");
-                        scanf(" %[^\n]", library[i].title);
-                        printf("Title updated successfully!\n");
-                        break;
-                    case 2:
-                        printf("Enter new author: ");
-                        scanf(" %[^\n]", library[i].author);
-                        printf("Author updated successfully!\n");
-                        break;
-                    case 3:
-                        printf("Enter new publication year: ");
-                        scanf("%d", &library[i].year);
-                        printf("Publication year updated successfully!\n");
-                        break;
-                    case 4:
-                        printf("Enter new quantity: ");
-                        scanf("%d", &library[i].quantity);
-                        printf("Quantity updated successfully!\n");
-                        break;
-                    case 5:
-                        saveBooksToFile();
-                        printf("Changes saved. Returning to Admin Menu.\n");
-                        return;
-                    default:
-                        printf("Invalid choice! Please try again.\n");
+                switch (choice)
+                {
+                case 1:
+                    printf("Enter new title: ");
+                    scanf(" %[^\n]", library[i].title);
+                    printf("Title updated successfully!\n");
+                    break;
+                case 2:
+                    printf("Enter new author: ");
+                    scanf(" %[^\n]", library[i].author);
+                    printf("Author updated successfully!\n");
+                    break;
+                case 3:
+                    printf("Enter new publication year: ");
+                    scanf("%d", &library[i].year);
+                    printf("Publication year updated successfully!\n");
+                    break;
+                case 4:
+                    printf("Enter new quantity: ");
+                    scanf("%d", &library[i].quantity);
+                    printf("Quantity updated successfully!\n");
+                    break;
+                case 5:
+                    saveBooksToFile();
+                    printf("Changes saved. Returning to Admin Menu.\n");
+                    return;
+                default:
+                    printf("Invalid choice! Please try again.\n");
                 }
             }
         }
@@ -400,79 +429,84 @@ void searchBook()
     char searchQuery[100];
     int found = 0;
 
-    // Prompt the user to choose search criteria
-    printf("Select search criteria:\n");
+    printf("\nSelect search criteria:\n");
     printf("1. Search by Book ID\n");
     printf("2. Search by Title\n");
     printf("3. Search by Author\n");
     printf("Enter your choice (1-3): ");
     scanf("%d", &choice);
 
-    // Handle invalid input
-    if (choice < 1 || choice > 3) {
+    if (choice < 1 || choice > 3)
+    {
         printf("Invalid choice. Please select a valid option (1-3).\n");
         return;
     }
 
-
-    switch (choice) {
-        case 1:
-            printf("Enter the Book ID to search: ");
-            scanf("%d", &choice);
-            for (int i = 0; i < bookCount; i++) {
-                if (library[i].id == choice) {
-                    printf("\nBook Found: \n");
-                    printf("ID: %d\n", library[i].id);
-                    printf("Title: %s", library[i].title);
-                    printf("Author: %s", library[i].author);
-                    printf("Quantity: %d\n", library[i].quantity);
-                    found = 1;
-                    break;
-                }
+    switch (choice)
+    {
+    case 1:
+    {
+        int id;
+        printf("Enter the Book ID to search: ");
+        scanf("%d", &id);
+        for (int i = 0; i < bookCount; i++)
+        {
+            if (library[i].id == id)
+            {
+                printf("\nBook Found: \n");
+                printf("ID: %d\nTitle: %s\nAuthor: %s\nQuantity: %d\n",
+                       library[i].id, library[i].title, library[i].author, library[i].quantity);
+                found = 1;
+                break;
             }
-            break;
+        }
+    }
+    break;
 
-        case 2:
-            getchar();
-            printf("Enter the Book Title to search: ");
-            fgets(searchQuery, sizeof(searchQuery), stdin);
-            searchQuery[strcspn(searchQuery, "\n")] = 0;
-            for (int i = 0; i < bookCount; i++) {
-                if (strstr(library[i].title, searchQuery) != NULL) {
-                    printf("\nBook Found: \n");
-                    printf("ID: %d\n", library[i].id);
-                    printf("Title: %s", library[i].title);
-                    printf("Author: %s", library[i].author);
-                    printf("Quantity: %d\n", library[i].quantity);
-                    found = 1;
-                }
+    case 2:
+    {
+        getchar();
+        printf("Enter the Book Title to search: ");
+        fgets(searchQuery, sizeof(searchQuery), stdin);
+        searchQuery[strcspn(searchQuery, "\n")] = 0;
+        for (int i = 0; i < bookCount; i++)
+        {
+            if (strcasecmp(library[i].title, searchQuery) == 0)
+            {
+                printf("\nBook Found: \n");
+                printf("ID: %d\nTitle: %s\nAuthor: %s\nQuantity: %d\n",
+                       library[i].id, library[i].title, library[i].author, library[i].quantity);
+                found = 1;
             }
-            break;
+        }
+    }
+    break;
 
-        case 3:
-            getchar();
-            printf("Enter the Author Name to search: ");
-            fgets(searchQuery, sizeof(searchQuery), stdin);
-            searchQuery[strcspn(searchQuery, "\n")] = 0;
-            for (int i = 0; i < bookCount; i++) {
-                if (strstr(library[i].author, searchQuery) != NULL) {
-                    printf("\nBook Found: \n");
-                    printf("ID: %d\n", library[i].id);
-                    printf("Title: %s", library[i].title);
-                    printf("Author: %s", library[i].author);
-                    printf("Quantity: %d\n", library[i].quantity);
-                    found = 1;
-                }
+    case 3:
+    {
+        getchar();
+        printf("Enter the Author Name to search: ");
+        fgets(searchQuery, sizeof(searchQuery), stdin);
+        searchQuery[strcspn(searchQuery, "\n")] = 0;
+        for (int i = 0; i < bookCount; i++)
+        {
+            if (strcasecmp(library[i].author, searchQuery) == 0)
+            {
+                printf("\nBook Found: \n");
+                printf("ID: %d\nTitle: %s\nAuthor: %s\nQuantity: %d\n",
+                       library[i].id, library[i].title, library[i].author, library[i].quantity);
+                found = 1;
             }
-            break;
+        }
+    }
+    break;
     }
 
-
-    if (!found) {
+    if (!found)
+    {
         printf("\nNo book matches your search criteria.\n");
     }
 }
-
 
 
 void borrowBook()
@@ -600,7 +634,7 @@ void adminMenu()
     int choice;
     while (1)
     {
-        printf("\nAdmin Menu:\n1. Add Book\n2. Delete Book\n3. Update Book\n4. Display Books\n5. Search Book\n6. Sign-up Student\n7. View Borrowed Books\n8. Delete User\n9. Go Back\n");
+        printf("\nAdmin Menu:\n1. Add Book\n2. Delete Book\n3. Update Book\n4. Display All Books\n5. Search Book\n6. Sign-up Student\n7. View Borrowed Books\n8. Delete User\n9. Go Back\n");
         printf("Enter choice: ");
         scanf("%d", &choice);
 
@@ -643,7 +677,7 @@ void userMenu()
     int choice;
     while (1)
     {
-        printf("\nUser Menu:\n1. Borrow Book\n2. Return Book\n3. View Books\n4. Search Book\n5. View Borrowed Books\n6. Go Back\n");
+        printf("\nUser Menu:\n1. Borrow Book\n2. Return Book\n3. View All Books\n4. Search Book\n5. View Borrowed Books\n6. Go Back\n");
         printf("Enter choice: ");
         scanf("%d", &choice);
 
@@ -675,11 +709,12 @@ void userMenu()
 void aboutUs()
 {
     printf("\n--------------- About Us ---------------\n");
-    printf("      Welcome to \"Libro_GO\" -\n A Library Management Capstone Project\n");
-    printf("Bevelop by\n");
-    printf("G.M Sabbir Ahmed        Id: 232-35-359\n");
-    printf("Refat Anwar.            Id: 232-35-423\n");
-    printf("Sabikun Nahar Sinthia   id: 232-35-475\n");
+    printf("      Welcome to \"Libro_GO\" -\n A Library Management Capstone Project\n\n");
+    printf("Developed by :-\n");
+    printf("G.M Sabbir Ahmed.        Id: 232-35-359\n");
+    printf("Refat Anwar.             Id: 232-35-423\n");
+    printf("Sabikun Nahar Sinthia.   id: 232-35-475\n");
+    printf("\n  Department of Software Engineering,\n   Daffodil International University\n");
     printf("-----------------------------------------\n");
 }
 
